@@ -1,8 +1,11 @@
 package test.urlAnnotations;
 
-import framework.Annotation.Url;
+import framework.annotations.Controller;
+import framework.annotations.Url;
 
+@Controller
 public class UrlController {
+
     @Url("/test1")
     public void voaloha() {
         System.out.println("hello");
@@ -14,9 +17,11 @@ public class UrlController {
     }
 
     @Url("/test3")
-    public void hiiii(){
+    public void hiiii() {
         System.out.println("bye");
     }
 
-    public void sayHi() {}
+    public void sayHi() {
+        System.out.println("hi");
+    }
 }

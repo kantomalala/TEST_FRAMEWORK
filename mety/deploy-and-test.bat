@@ -1,5 +1,5 @@
 @echo off
-setlocal
+setlocal EnableDelayedExpansion
 
 :: ========================================
 :: CONFIGURATION
@@ -9,16 +9,16 @@ set "WEB_DIR=webapp"
 set "BUILD_DIR=build"
 set "LIB_DIR=lib"
 set "TOMCAT_WEBAPPS=C:\Users\Kanto\OneDrive\Documents\apache-tomcat-10.1.28\webapps"
-set "SERVLET_API_JAR=%LIB_DIR%\servlet-api.jar"
 set "FRONT_SERVLET_JAR=%LIB_DIR%\mon-framework.jar"
 
 :: Chemins sprint2
-set "SRC_SPRINT2=src\test\urlAnnotations"
+:: Compile all sources under src so helper classes (e.g. framework.annotations) are included
+set "SRC_SPRINT2=src"
 set "BUILD_CLASSES=%BUILD_DIR%\WEB-INF\classes"
 
 echo.
 echo ========================================
-echo   DEPLOIEMENT + TEST SPRINT2
+echo     DEPLOIEMENT FRAMEWORK WEB
 echo ========================================
 echo.
 
@@ -37,48 +37,52 @@ if not exist "%WEB_DIR%\WEB-INF\web.xml" (
     exit /b 1
 )
 
-if not exist "%SRC_SPRINT2%\Main.java" (
-    echo [ERREUR] Main.java manquant dans %SRC_SPRINT2%\
+:: ========================================
+:: 2. COMPILATION DES CONTRÔLEURS
+:: ========================================
+echo Compilation des controleurs...
+
+:: Nettoyage
+if exist "%BUILD_DIR%" rmdir /s /q "%BUILD_DIR%"
+mkdir "%BUILD_CLASSES%" 2>nul
+mkdir "%BUILD_DIR%\WEB-INF\lib" 2>nul
+
+:: Liste tous les .java sous le dossier (récursif) into a temp sources file
+set "SOURCES_FILE=%BUILD_DIR%\sources.txt"
+if exist "%SOURCES_FILE%" del /q "%SOURCES_FILE%"
+for /r "%SRC_SPRINT2%" %%f in (*.java) do (
+    echo %%~f>>"%SOURCES_FILE%"
+)
+
+:: Si aucun fichier → erreur
+if not exist "%SOURCES_FILE%" (
+    echo [ERREUR] Aucun fichier .java trouve dans %SRC_SPRINT2%\
+    pause
+    exit /b 1
+)
+for %%I in ("%SOURCES_FILE%") do set "_SRC_SIZE=%%~zI"
+if "%_SRC_SIZE%"=="0" (
+    echo [ERREUR] Aucun fichier .java trouve dans %SRC_SPRINT2%\
     pause
     exit /b 1
 )
 
-:: ========================================
-:: 2. COMPILATION SPRINT2 (dans WEB-INF/classes)
-:: ========================================
-echo Compilation du test sprint2...
-mkdir "%BUILD_CLASSES%" 2>nul
-javac -cp "%FRONT_SERVLET_JAR%" -d "%BUILD_CLASSES%" %SRC_SPRINT2%\*.java
+:: Compilation using javac @sources.txt to avoid quoting pitfalls
+javac -cp "%FRONT_SERVLET_JAR%" -d "%BUILD_CLASSES%" @"%SOURCES_FILE%"
 if errorlevel 1 (
     echo.
-    echo [ERREUR] Échec compilation sprint2
+    echo [ERREUR] Echec compilation des controleurs
     pause
     exit /b 1
 )
 
 :: ========================================
-:: 3. EXÉCUTION DU TEST (avant déploiement)
+:: 3. DÉPLOIEMENT WEB
 :: ========================================
 echo.
-echo ========================================
-echo       RÉSULTAT DU TEST SPRINT2
-echo ========================================
-echo.
-java -cp "%BUILD_CLASSES%;%FRONT_SERVLET_JAR%" test.urlAnnotations.Main
+echo Creation du WAR...
 
-echo.
-echo ========================================
-echo         TEST TERMINÉ
-echo ========================================
-echo.
-
-:: ========================================
-:: 4. DÉPLOIEMENT WEB
-:: ========================================
-echo Déploiement de l'application web...
-
-:: Copie librairie
-mkdir "%BUILD_DIR%\WEB-INF\lib" 2>nul
+:: Copie du JAR
 copy /Y "%FRONT_SERVLET_JAR%" "%BUILD_DIR%\WEB-INF\lib\" >nul
 
 :: Copie webapp/
@@ -89,24 +93,29 @@ cd "%BUILD_DIR%"
 jar -cvf "%APP_NAME%.war" * >nul
 cd ..
 
-:: Déploiement Tomcat
+:: Déploiement
 copy /Y "%BUILD_DIR%\%APP_NAME%.war" "%TOMCAT_WEBAPPS%\" >nul
 
 :: Nettoyage
 rmdir /s /q "%BUILD_DIR%"
 
 :: ========================================
-:: 5. FIN
+:: 4. FIN + OUVERTURE NAVIGATEUR
 :: ========================================
 echo.
 echo ========================================
-echo     TOUT EST TERMINÉ !
+echo     DEPLOIEMENT TERMINE !
 echo ========================================
 echo.
-echo 1. Test sprint2 : AFFICHÉ CI-DESSUS
-echo 2. Web app déployée :
+echo Application deployee :
 echo    http://localhost:8080/%APP_NAME%/
 echo.
-echo Redémarre Tomcat si nécessaire.
+echo Testez :
+echo   - http://localhost:8080/%APP_NAME%/routes
+echo   - http://localhost:8080/%APP_NAME%/test1
+echo.
+start http://localhost:8080/%APP_NAME%/routes
+
+echo Redemarre Tomcat si necessaire.
 echo.
 pause
