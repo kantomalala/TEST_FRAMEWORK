@@ -48,7 +48,7 @@ if not exist "%SRC_SPRINT2%\Main.java" (
 :: ========================================
 echo Compilation du test sprint2...
 mkdir "%BUILD_CLASSES%" 2>nul
-javac -cp "%FRONT_SERVLET_JAR%" -d "%BUILD_CLASSES%" %SRC_SPRINT2%\*.java
+javac -cp "%FRONT_SERVLET_JAR%" -d "%BUILD_CLASSES%" src\framework\annotations\*.java %SRC_SPRINT2%\*.java
 if errorlevel 1 (
     echo.
     echo [ERREUR] Échec compilation sprint2
