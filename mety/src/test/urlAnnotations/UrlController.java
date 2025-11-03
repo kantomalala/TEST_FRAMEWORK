@@ -1,22 +1,16 @@
 package test.urlAnnotations;
 
-import framework.Annotation.Url;
+import framework.annotations.Controller;
+import framework.annotations.Url;
 
+@Controller
 public class UrlController {
+
     @Url("/test1")
-    public void voaloha() {
-        System.out.println("hello");
-    }
+    public void voaloha() { }
 
     @Url("/test2")
-    public void deuxieme() {
-        System.out.println("ca va");
-    }
+    public void deuxieme() { }
 
-    @Url("/test3")
-    public void hiiii(){
-        System.out.println("bye");
-    }
-
-    public void sayHi() {}
+    public void sayHi() { }
 }
