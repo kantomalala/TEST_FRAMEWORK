@@ -1,14 +1,12 @@
 @echo off
 setlocal EnableDelayedExpansion
 
-:: ========================================
-:: CONFIGURATION
-:: ========================================
-set "APP_NAME=framework-test"
+set "APP_NAME=mety"
 set "WEB_DIR=webapp"
 set "BUILD_DIR=build"
 set "LIB_DIR=lib"
 set "TOMCAT_WEBAPPS=C:\Users\Kanto\OneDrive\Documents\apache-tomcat-10.1.28\webapps"
+<<<<<<< Updated upstream
 set "FRONT_SERVLET_JAR=%LIB_DIR%\mon-framework.jar"
 
 :: Chemins sprint2
@@ -19,18 +17,26 @@ set "BUILD_CLASSES=%BUILD_DIR%\WEB-INF\classes"
 echo.
 echo ========================================
 echo     DEPLOIEMENT FRAMEWORK WEB
+=======
+set "JAR=%LIB_DIR%\mon-framework.jar"
+set "SRC=src\test\urlAnnotations"
+set "CLASSES=%BUILD_DIR%\WEB-INF\classes"
+
+echo.
+echo ========================================
+echo     DEPLOIEMENT DIRECT - NAVIGATEUR
+>>>>>>> Stashed changes
 echo ========================================
 echo.
 
-:: ========================================
-:: 1. VÉRIFICATIONS
-:: ========================================
-if not exist "%FRONT_SERVLET_JAR%" (
-    echo [ERREUR] mon-framework.jar manquant dans %LIB_DIR%\
+:: Vérif JAR
+if not exist "%JAR%" (
+    echo [ERREUR] mon-framework.jar manquant
     pause
     exit /b 1
 )
 
+<<<<<<< Updated upstream
 if not exist "%WEB_DIR%\WEB-INF\web.xml" (
     echo [ERREUR] web.xml manquant dans %WEB_DIR%\WEB-INF\
     pause
@@ -84,21 +90,40 @@ echo Creation du WAR...
 
 :: Copie du JAR
 copy /Y "%FRONT_SERVLET_JAR%" "%BUILD_DIR%\WEB-INF\lib\" >nul
+=======
+:: Nettoyage
+if exist "%BUILD_DIR%" rmdir /s /q "%BUILD_DIR%"
+mkdir "%CLASSES%" 2>nul
+mkdir "%BUILD_DIR%\WEB-INF\lib" 2>nul
+>>>>>>> Stashed changes
 
-:: Copie webapp/
+:: Compilation
+echo Compilation du controleur...
+set "JAVA_FILES="
+for /f "delims=" %%f in ('dir /b "%SRC%\*.java" 2^>nul') do (
+    set "JAVA_FILES=!JAVA_FILES! "%SRC%\%%f""
+)
+
+javac -cp "%JAR%" -d "%CLASSES%" %JAVA_FILES%
+if errorlevel 1 (
+    echo [ERREUR] Compilation
+    pause
+    exit /b 1
+)
+
+:: WAR
+echo Creation du WAR...
+copy /Y "%JAR%" "%BUILD_DIR%\WEB-INF\lib\" >nul
 xcopy /E /I /Y "%WEB_DIR%\*" "%BUILD_DIR%\" >nul
-
-:: Création WAR
 cd "%BUILD_DIR%"
 jar -cvf "%APP_NAME%.war" * >nul
 cd ..
 
 :: Déploiement
 copy /Y "%BUILD_DIR%\%APP_NAME%.war" "%TOMCAT_WEBAPPS%\" >nul
-
-:: Nettoyage
 rmdir /s /q "%BUILD_DIR%"
 
+<<<<<<< Updated upstream
 :: ========================================
 :: 4. FIN + OUVERTURE NAVIGATEUR
 :: ========================================
@@ -115,6 +140,14 @@ echo   - http://localhost:8080/%APP_NAME%/routes
 echo   - http://localhost:8080/%APP_NAME%/test1
 echo.
 start http://localhost:8080/%APP_NAME%/routes
+=======
+:: OUVERTURE DIRECTE /test1
+echo.
+echo DEPLOYE ! OUVERTURE DE /test1
+echo http://localhost:8080/%APP_NAME%/test1
+echo.
+start http://localhost:8080/%APP_NAME%/test1
+>>>>>>> Stashed changes
 
 echo Redemarre Tomcat si necessaire.
 echo.

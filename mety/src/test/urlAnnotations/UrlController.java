@@ -1,12 +1,13 @@
 package test.urlAnnotations;
 
-import framework.annotations.Controller;
-import framework.annotations.Url;
+import framework.Annotation.Controller;
+import framework.Annotation.Url;
 
 @Controller
 public class UrlController {
 
     @Url("/test1")
+<<<<<<< Updated upstream
     public void voaloha() {
         System.out.println("hello");
     }
@@ -23,5 +24,14 @@ public class UrlController {
 
     public void sayHi() {
         System.out.println("hi");
+=======
+    public void hello() {
+        System.out.println("Hello from /test1");
+    }
+
+    @Url("/test2")
+    public void bye() {
+        System.out.println("Bye from /test2");
+>>>>>>> Stashed changes
     }
 }

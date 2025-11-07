@@ -8,6 +8,11 @@
     <servlet>
         <servlet-name>FrontServlet</servlet-name>
         <servlet-class>framework.Servlet.FrontServlet</servlet-class>
+        <init-param>
+            <param-name>scanPackage</param-name>
+            <param-value>test.urlAnnotations</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet-mapping>
@@ -15,4 +20,8 @@
         <url-pattern>/</url-pattern>
     </servlet-mapping>
 
+    <!-- OUVRE /test1 PAR DÉFAUT -->
+    <welcome-file-list>
+        <welcome-file>test1</welcome-file>
+    </welcome-file-list>
 </web-app>
