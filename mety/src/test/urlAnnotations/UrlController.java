@@ -7,12 +7,12 @@ import framework.Annotation.Url;
 public class UrlController {
 
     @Url("/test1")
-    public void hello() {
-        System.out.println("Hello from /test1");
+    public String hello() {
+        return "hello";
     }
 
     @Url("/test2")
-    public void bye() {
-        System.out.println("Bye from /test2");
+    public String bye() {
+        return "bye";
     }
 }
