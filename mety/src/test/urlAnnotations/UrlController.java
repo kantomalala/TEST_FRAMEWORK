@@ -2,22 +2,23 @@ package test.urlAnnotations;
 
 import framework.Annotation.Controller;
 import framework.Annotation.Url;
+import framework.util.ModelView;
 
 @Controller
 public class UrlController {
 
     @Url("/test1")
-    public String hello() {
-        return "Bonjour depuis le contrôleur ! Ceci est le Sprint 4";
+    public String texte() {
+        return "Ceci est une String simple → affiché en texte brut (Sprint 4)";
     }
 
     @Url("/test2")
-    public String bye() {
-        return "Au revoir ! La valeur retournée est affichée directement";
-    }
+public ModelView versJsp() {
+    return new ModelView("test.jsp");  
+}
 
     @Url("/test3")
-    public void classic() {
-        // Pas de return → affichage classique
+    public void classique() {
+        // → affichage par défaut
     }
 }

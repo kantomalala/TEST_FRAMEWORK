@@ -1,11 +1,12 @@
 @echo off
 setlocal EnableDelayedExpansion
 
-set "APP_NAME=mety33"
+set "APP_NAME=mety4"
 set "WEB_DIR=webapp"
 set "BUILD_DIR=build"
 set "LIB_DIR=lib"
-set "TOMCAT_WEBAPPS=C:\Users\Kanto\OneDrive\Documents\apache-tomcat-10.1.28\webapps"
+set "TOMCAT_HOME=C:\Users\Kanto\OneDrive\Documents\apache-tomcat-10.1.28"
+set "TOMCAT_WEBAPPS=%TOMCAT_HOME%\webapps"
 set "JAR=%LIB_DIR%\mon-framework.jar"
 set "SERVLET_API=%LIB_DIR%\servlet-api.jar"
 set "SRC=src\test\urlAnnotations"
@@ -14,7 +15,7 @@ set "TEST_CLASSES=%BUILD_DIR%\test-classes"
 
 echo.
 echo ========================================
-echo   DEPLOIEMENT + TEST SPRINT3
+echo   DEPLOIEMENT + TEST SPRINT 4 BIS
 echo ========================================
 echo.
 
@@ -26,23 +27,32 @@ if not exist "%JAR%" (
 )
 
 if not exist "%SERVLET_API%" (
-    echo [ERREUR] servlet-api.jar manquant
+    echo [ERREUR] servlet-api.jar manquant dans %LIB_DIR%
     pause
     exit /b 1
 )
 
-:: Nettoyage
+:: Vérif JSP
+if not exist "%WEB_DIR%\WEB-INF\views\test.jsp" (
+    echo [ERREUR] test.jsp manquant dans %WEB_DIR%\WEB-INF\views\
+    pause
+    exit /b 1
+)
+
+:: Nettoyage BUILD local
 if exist "%BUILD_DIR%" rmdir /s /q "%BUILD_DIR%"
 mkdir "%CLASSES%" 2>nul
 mkdir "%TEST_CLASSES%" 2>nul
 mkdir "%BUILD_DIR%\WEB-INF\lib" 2>nul
 
-:: ========================================
-:: PARTIE 1 : TEST CONSOLE (comme Sprint 2)
-:: ========================================
-echo Compilation du test sprint3...
+:: Nettoyage TOMCAT
+echo Nettoyage de l'ancien deploiement...
+if exist "%TOMCAT_WEBAPPS%\%APP_NAME%.war" del /f /q "%TOMCAT_WEBAPPS%\%APP_NAME%.war"
+if exist "%TOMCAT_WEBAPPS%\%APP_NAME%" rmdir /s /q "%TOMCAT_WEBAPPS%\%APP_NAME%"
+if exist "%TOMCAT_HOME%\work\Catalina\localhost\%APP_NAME%" rmdir /s /q "%TOMCAT_HOME%\work\Catalina\localhost\%APP_NAME%"
 
-:: Construire la liste des fichiers Java
+:: Compilation AVEC servlet-api.jar
+echo Compilation du controleur...
 set "JAVA_FILES="
 for %%f in ("%SRC%\*.java") do (
     set "JAVA_FILES=!JAVA_FILES! "%%f""
@@ -55,9 +65,10 @@ if errorlevel 1 (
     exit /b 1
 )
 
+:: Test console
 echo.
 echo ========================================
-echo      RÉSULTAT DU TEST SPRINT3
+echo      TEST CONSOLE
 echo ========================================
 echo.
 java -cp "%TEST_CLASSES%;%JAR%;%SERVLET_API%" test.urlAnnotations.TestScan
@@ -68,38 +79,50 @@ echo         TEST TERMINÉ
 echo ========================================
 echo.
 
-:: ========================================
-:: PARTIE 2 : DÉPLOIEMENT WEB (comme Sprint 3)
-:: ========================================
-echo Déploiement de l'application web...
+:: Déploiement WEB
+echo Deploiement de l'application web...
 
-:: Copier les classes compilées pour le WAR
+:: Copier classes + JAR
 xcopy /E /I /Y "%TEST_CLASSES%\*" "%CLASSES%\" >nul
-
-:: WAR
 copy /Y "%JAR%" "%BUILD_DIR%\WEB-INF\lib\" >nul
+
+:: Copier webapp (web.xml + JSP)
 xcopy /E /I /Y "%WEB_DIR%\*" "%BUILD_DIR%\" >nul
+
+:: Vérification structure
+echo.
+echo === VERIFICATION : Structure du BUILD ===
+if exist "%BUILD_DIR%\WEB-INF\views\test.jsp" (
+    echo [OK] test.jsp present dans BUILD
+) else (
+    echo [ERREUR] test.jsp ABSENT dans BUILD !
+    pause
+    exit /b 1
+)
+
+:: Création WAR
 cd "%BUILD_DIR%"
 jar -cvf "%APP_NAME%.war" * >nul
 cd ..
 
-:: Déploiement
+:: Déploiement Tomcat
 copy /Y "%BUILD_DIR%\%APP_NAME%.war" "%TOMCAT_WEBAPPS%\" >nul
 rmdir /s /q "%BUILD_DIR%"
 
-:: ========================================
-:: FIN
-:: ========================================
+echo Attente deploiement (5 sec)...
+timeout /t 5 /nobreak >nul
+
 echo.
 echo ========================================
-echo     TOUT EST TERMINÉ !
+echo     DEPLOIEMENT TERMINE !
 echo ========================================
 echo.
-echo 1. Test sprint3 : AFFICHÉ CI-DESSUS
-echo 2. Web app déployée :
-echo    http://localhost:8080/%APP_NAME%/test1
-echo    http://localhost:8080/%APP_NAME%/test2
+echo Test console : AFFICHE CI-DESSUS
 echo.
-echo Redémarre Tomcat si nécessaire.
+echo URLs disponibles :
+echo   http://localhost:8080/%APP_NAME%/test1  (String)
+echo   http://localhost:8080/%APP_NAME%/test2  (ModelView + JSP)
+echo.
+echo Verifie les logs Tomcat si probleme !
 echo.
 pause
