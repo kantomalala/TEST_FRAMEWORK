@@ -13,6 +13,8 @@
     <h1>Salama daholo e !</h1>
     <h2>Sprint 4 bis vita tanteraka !</h2>
     <p>Le ModelView a bien dispatché vers cette JSP !</p>
+    <h3>Message du controller : <%= request.getAttribute("message") %></h3>
+    <p>Année fournie : <%= request.getAttribute("year") %></p>
     <hr>
     <p><i>Framework maison by Kanto - Madagascar 2025</i></p>
 </body>

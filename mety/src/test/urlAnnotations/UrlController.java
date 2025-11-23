@@ -14,7 +14,10 @@ public class UrlController {
 
     @Url("/test2")
 public ModelView versJsp() {
-    return new ModelView("test.jsp");  
+    ModelView mv = new ModelView("test.jsp");
+    mv.addAttribute("message", "Bonjour depuis le controller !");
+    mv.addAttribute("year", 2025);
+    return mv;
 }
 
     @Url("/test3")
