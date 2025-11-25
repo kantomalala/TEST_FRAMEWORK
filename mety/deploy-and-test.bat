@@ -1,7 +1,7 @@
 @echo off
 setlocal EnableDelayedExpansion
 
-set "APP_NAME=mety5dw"
+set "APP_NAME=mety3bis"
 set "WEB_DIR=webapp"
 set "BUILD_DIR=build"
 set "LIB_DIR=lib"

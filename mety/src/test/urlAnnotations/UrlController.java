@@ -24,4 +24,9 @@ public ModelView versJsp() {
     public void classique() {
         // → affichage par défaut
     }
+
+    @Url("/etudiant/{id}")
+    public String etudiantById(String id) {
+        return "Etudiant id = " + id + " (méthode GET reconnue depuis le pattern)";
+    }
 }
