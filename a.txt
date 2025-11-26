@@ -1,2 +1,4 @@
 je veux continuer continuer mon projet . on va avoir un init dans le frontservelet qui va effectuer l operation genre ciode lancer au demarrage qui scan tous les class dans le path et methode qui utilisent les annotations . je veux qu on peut choisirle package qu il scannera .il listear ainsi les urls prise en charge des class et les methode de ce url.dans le test alors quand on appelle l url il dit si il support ou pas donc si il supporte il affiche le class et methode .donc si on a pas controller donc il n y a rien.je veux aussi saciir que c ou le package annoter
 donc j aurai une class qui scan puis c dans frontservlet qu on appele cela . lorsqu on a fini le scan cela va dans le servlet context 
+
+http://localhost:8080/mety6/test_form.html

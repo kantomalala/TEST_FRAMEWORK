@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Formulaire - Paramètres Automatiques</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0,123,255,0.5);
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .info-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            color: #004085;
+        }
+        .test-links {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #ddd;
+        }
+        .test-links a {
+            display: block;
+            margin: 10px 0;
+            color: #007bff;
+            text-decoration: none;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+        }
+        .test-links a:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Formulaire - Mapping Automatique des Paramètres</h1>
+        
+        <div class="info-box">
+            <strong>ℹ️ Fonctionnement :</strong><br>
+            Les paramètres du formulaire (name="id", name="nom") sont automatiquement mappés 
+            à la méthode <code>save(int id, String nom)</code> du controller.
+        </div>
+
+        <!-- TEST 1 : Formulaire POST -->
+        <h2>Test 1 : Enregistrement d'un Étudiant (POST)</h2>
+        <form action="etudiant/save" method="POST">
+            <div class="form-group">
+                <label for="id">ID (entier):</label>
+                <input type="number" id="id" name="id" value="42" required>
+            </div>
+            <div class="form-group">
+                <label for="nom">Nom (texte):</label>
+                <input type="text" id="nom" name="nom" value="Jean Dupont" required>
+            </div>
+            <button type="submit">Enregistrer l'étudiant</button>
+        </form>
+
+        <!-- TEST 2 : Autres tests -->
+        <div class="test-links">
+            <h2>Tests Supplémentaires</h2>
+            
+            <h3>Test 2 : String Simple</h3>
+            <a href="test1">Cliquer pour test1 (String simple)</a>
+            
+            <h3>Test 3 : Redirection JSP</h3>
+            <a href="test2">Cliquer pour test2 (ModelView → JSP)</a>
+            
+            <h3>Test 4 : Void</h3>
+            <a href="test3">Cliquer pour test3 (void)</a>
+            
+            <h3>Test 5 : Paramètre depuis l'URL</h3>
+            <a href="etudiant/17">Cliquer pour /etudiant/17 (pattern matching)</a>
+            <a href="etudiant/99">Cliquer pour /etudiant/99 (pattern matching)</a>
+        </div>
+
+        <div class="info-box" style="margin-top: 30px;">
+            <strong>📊 Ce que vous devez voir :</strong><br>
+            ✅ Formulaire POST → les paramètres <code>id=42</code> et <code>nom=Jean Dupont</code> 
+            sont reçus par la méthode <code>save()</code><br>
+            ✅ Conversion automatique : <code>id</code> (String du formulaire) → <code>int</code> (paramètre Java)<br>
+            ✅ Les autres URLs testent les différents types de retour (String, ModelView, void)
+        </div>
+    </div>
+</body>
+</html>
