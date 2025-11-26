@@ -29,4 +29,13 @@ public ModelView versJsp() {
     public String etudiantById(String id) {
         return "Etudiant id = " + id + " (méthode GET reconnue depuis le pattern)";
     }
+
+    @Url("/etudiant/save")
+    public ModelView save(int id, String nom) {
+        ModelView mv = new ModelView("etudiant_saved");
+        mv.addAttribute("id", id);
+        mv.addAttribute("nom", nom);
+        mv.addAttribute("message", "Étudiant enregistré avec succès !");
+        return mv;
+    }
 }
