@@ -2,6 +2,7 @@ package test.urlAnnotations;
 
 import framework.Annotation.Controller;
 import framework.Annotation.Url;
+import framework.Annotation.RequestParam;
 import framework.util.ModelView;
 
 @Controller
@@ -31,11 +32,18 @@ public ModelView versJsp() {
     }
 
     @Url("/etudiant/save")
-    public ModelView save(int id, String nom) {
+    public ModelView save(
+        @RequestParam("id") int idEtudiant,
+        @RequestParam("nom") String nomComplet
+    ) {
+        System.out.println("=== TEST @RequestParam ===");
+        System.out.println("Formulaire id → idEtudiant = " + idEtudiant);
+        System.out.println("Formulaire nom → nomComplet = " + nomComplet);
+        
         ModelView mv = new ModelView("etudiant_saved");
-        mv.addAttribute("id", id);
-        mv.addAttribute("nom", nom);
-        mv.addAttribute("message", "Étudiant enregistré avec succès !");
+        mv.addAttribute("id", idEtudiant);
+        mv.addAttribute("nom", nomComplet);
+        mv.addAttribute("message", "Étudiant enregistré avec @RequestParam !");
         return mv;
     }
 }
