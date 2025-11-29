@@ -3,6 +3,8 @@ package test.urlAnnotations;
 import framework.Annotation.Controller;
 import framework.Annotation.Url;
 import framework.Annotation.RequestParam;
+import framework.Annotation.GetMapping;
+import framework.Annotation.PostMapping;
 import framework.util.ModelView;
 
 @Controller
@@ -26,42 +28,39 @@ public ModelView versJsp() {
         // → affichage par défaut
     }
 
-    // SPRINT 6-TER : Paramètre dynamique dans l'URL
     @Url("/etudiant/{id}")
-    public ModelView etudiantById(@RequestParam("id") int idEtudiant) {
-        System.out.println("=== SPRINT 6-TER : URL dynamique ===");
-        System.out.println("URL /etudiant/{id} → idEtudiant = " + idEtudiant);
-        
-        ModelView mv = new ModelView("etudiant_detail");
-        mv.addAttribute("id", idEtudiant);
-        mv.addAttribute("nom", "Étudiant n°" + idEtudiant);
-        mv.addAttribute("message", "Détails de l'étudiant avec ID extrait de l'URL");
+    public String etudiantById(String id) {
+        return "Etudiant id = " + id + " (méthode GET reconnue depuis le pattern)";
+    }
+
+    @Url("/cours/{idCours}/etudiant/{idEtudiant}")
+    public String getCoursEtudiant(String idCours, String idEtudiant) {
+        return "Cours n°" + idCours + " pour étudiant n°" + idEtudiant + " (SPRINT 6-TER : plusieurs params dynamiques)";
+    }
+
+    // SPRINT 7: GET affiche le formulaire
+    @GetMapping("/etudiant/save")
+    public ModelView formulaireSave() {
+        System.out.println("=== GET /etudiant/save : affichage du formulaire ===");
+        ModelView mv = new ModelView("etudiant_form");
+        mv.addAttribute("titre", "Nouveau étudiant");
         return mv;
     }
 
-    // SPRINT 6-TER : Plusieurs paramètres dynamiques
-    @Url("/cours/{idCours}/etudiant/{idEtudiant}")
-    public String getCoursEtudiant(
-        @RequestParam("idCours") int cours,
-        @RequestParam("idEtudiant") int etudiant
-    ) {
-        return "Cours n°" + cours + " pour étudiant n°" + etudiant + " (SPRINT 6-TER)";
-    }
-
-    // SPRINT 6-BIS : Formulaire avec @RequestParam
-    @Url("/etudiant/save")
+    // SPRINT 7: POST traite la soumission
+    @PostMapping("/etudiant/save")
     public ModelView save(
         @RequestParam("id") int idEtudiant,
         @RequestParam("nom") String nomComplet
     ) {
-        System.out.println("=== SPRINT 6-BIS : @RequestParam ===");
+        System.out.println("=== POST /etudiant/save : traitement du formulaire ===");
         System.out.println("Formulaire id → idEtudiant = " + idEtudiant);
         System.out.println("Formulaire nom → nomComplet = " + nomComplet);
         
         ModelView mv = new ModelView("etudiant_saved");
         mv.addAttribute("id", idEtudiant);
         mv.addAttribute("nom", nomComplet);
-        mv.addAttribute("message", "Étudiant enregistré avec @RequestParam !");
+        mv.addAttribute("message", "Étudiant enregistré avec @PostMapping !");
         return mv;
     }
 }
