@@ -26,17 +26,35 @@ public ModelView versJsp() {
         // → affichage par défaut
     }
 
+    // SPRINT 6-TER : Paramètre dynamique dans l'URL
     @Url("/etudiant/{id}")
-    public String etudiantById(String id) {
-        return "Etudiant id = " + id + " (méthode GET reconnue depuis le pattern)";
+    public ModelView etudiantById(@RequestParam("id") int idEtudiant) {
+        System.out.println("=== SPRINT 6-TER : URL dynamique ===");
+        System.out.println("URL /etudiant/{id} → idEtudiant = " + idEtudiant);
+        
+        ModelView mv = new ModelView("etudiant_detail");
+        mv.addAttribute("id", idEtudiant);
+        mv.addAttribute("nom", "Étudiant n°" + idEtudiant);
+        mv.addAttribute("message", "Détails de l'étudiant avec ID extrait de l'URL");
+        return mv;
     }
 
+    // SPRINT 6-TER : Plusieurs paramètres dynamiques
+    @Url("/cours/{idCours}/etudiant/{idEtudiant}")
+    public String getCoursEtudiant(
+        @RequestParam("idCours") int cours,
+        @RequestParam("idEtudiant") int etudiant
+    ) {
+        return "Cours n°" + cours + " pour étudiant n°" + etudiant + " (SPRINT 6-TER)";
+    }
+
+    // SPRINT 6-BIS : Formulaire avec @RequestParam
     @Url("/etudiant/save")
     public ModelView save(
         @RequestParam("id") int idEtudiant,
         @RequestParam("nom") String nomComplet
     ) {
-        System.out.println("=== TEST @RequestParam ===");
+        System.out.println("=== SPRINT 6-BIS : @RequestParam ===");
         System.out.println("Formulaire id → idEtudiant = " + idEtudiant);
         System.out.println("Formulaire nom → nomComplet = " + nomComplet);
         
