@@ -1,7 +1,7 @@
 @echo off
 setlocal EnableDelayedExpansion
 
-set "APP_NAME=mety8"
+set "APP_NAME=mety8bis"
 set "WEB_DIR=webapp"
 set "BUILD_DIR=build"
 set "LIB_DIR=lib"
@@ -54,7 +54,7 @@ if exist "%TOMCAT_HOME%\work\Catalina\localhost\%APP_NAME%" rmdir /s /q "%TOMCAT
 :: Compilation AVEC servlet-api.jar
 echo Compilation du controleur...
 set "JAVA_FILES="
-for %%f in ("%SRC%\*.java") do (
+for /R "%SRC%\.." %%f in (*.java) do (
     set "JAVA_FILES=!JAVA_FILES! "%%f""
 )
 
