@@ -214,4 +214,84 @@ public ModelView versJsp() {
         
         return mv;
     }
+
+    // SPRINT 10 : Affichage du formulaire d'upload
+    @GetMapping("/document/nouveau")
+    public ModelView formulaireUpload() {
+        System.out.println("=== GET /document/nouveau : affichage formulaire upload ===");
+        ModelView mv = new ModelView("document_form");
+        mv.addAttribute("titre", "Upload de Document");
+        return mv;
+    }
+
+    // SPRINT 10 : Réception du fichier uploadé
+    @PostMapping("/document/upload")
+    public String uploadDocument(
+            @RequestParam("fichier") framework.util.UploadedFile fichier, 
+            @RequestParam("titre") String titre, 
+            @RequestParam("description") String description) {
+        System.out.println("\n=== SPRINT 10 : Upload de fichier ===");
+        System.out.println("Titre: " + titre);
+        System.out.println("Description: " + description);
+        
+        StringBuilder result = new StringBuilder();
+        result.append("<h1>SPRINT 10 : Upload de Fichier</h1>");
+        result.append("<h2>Document reçu avec succès</h2>");
+        
+        if (fichier != null && !fichier.isEmpty()) {
+            System.out.println("Fichier reçu: " + fichier.getFileName());
+            System.out.println("Taille: " + fichier.getSize() + " bytes");
+            System.out.println("Type: " + fichier.getContentType());
+            
+            result.append("<table border='1' style='border-collapse: collapse; margin: 20px;'>");
+            result.append("<tr><th style='padding: 10px;'>Information</th><th style='padding: 10px;'>Valeur</th></tr>");
+            result.append("<tr><td style='padding: 10px;'>Titre</td><td style='padding: 10px;'>").append(titre).append("</td></tr>");
+            result.append("<tr><td style='padding: 10px;'>Description</td><td style='padding: 10px;'>").append(description).append("</td></tr>");
+            result.append("<tr><td style='padding: 10px;'>Nom du fichier</td><td style='padding: 10px;'>").append(fichier.getFileName()).append("</td></tr>");
+            result.append("<tr><td style='padding: 10px;'>Type MIME</td><td style='padding: 10px;'>").append(fichier.getContentType()).append("</td></tr>");
+            result.append("<tr><td style='padding: 10px;'>Taille</td><td style='padding: 10px;'>").append(fichier.getSize()).append(" bytes</td></tr>");
+            result.append("</table>");
+            
+            // Test de sauvegarde dans un dossier temporaire
+            try {
+                String uploadDir = "C:\\temp\\uploads\\";
+                java.io.File directory = new java.io.File(uploadDir);
+                if (!directory.exists()) {
+                    directory.mkdirs();
+                }
+                
+                String savedPath = uploadDir + fichier.getFileName();
+                fichier.saveTo(savedPath);
+                
+                result.append("<p style='background: #d4edda; padding: 10px; border-left: 4px solid #28a745;'>");
+                result.append("<strong>✓ Fichier sauvegardé avec succès !</strong><br>");
+                result.append("Emplacement : ").append(savedPath);
+                result.append("</p>");
+                
+                System.out.println("Fichier sauvegardé : " + savedPath);
+            } catch (Exception e) {
+                result.append("<p style='background: #f8d7da; padding: 10px; border-left: 4px solid #dc3545;'>");
+                result.append("<strong>✗ Erreur lors de la sauvegarde :</strong> ").append(e.getMessage());
+                result.append("</p>");
+                System.err.println("Erreur sauvegarde : " + e.getMessage());
+            }
+            
+            result.append("<p style='background: #e7f3fe; padding: 10px; border-left: 4px solid #2196F3;'>");
+            result.append("<strong>Comment ça marche ?</strong><br>");
+            result.append("1. Le formulaire utilise enctype='multipart/form-data'<br>");
+            result.append("2. Le FrontServlet détecte le paramètre de type UploadedFile<br>");
+            result.append("3. Il extrait les bytes du fichier avec request.getPart()<br>");
+            result.append("4. L'objet UploadedFile est injecté dans la méthode du controller<br>");
+            result.append("5. Vous pouvez ensuite sauvegarder ou manipuler le fichier");
+            result.append("</p>");
+        } else {
+            result.append("<p style='background: #f8d7da; padding: 10px; border-left: 4px solid #dc3545;'>");
+            result.append("<strong>✗ Aucun fichier n'a été uploadé !</strong>");
+            result.append("</p>");
+        }
+        
+        result.append("<p><a href='../document/nouveau'>Uploader un autre fichier</a></p>");
+        
+        return result.toString();
+    }
 }
