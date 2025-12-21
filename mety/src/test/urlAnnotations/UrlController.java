@@ -5,9 +5,12 @@ import framework.Annotation.Url;
 import framework.Annotation.RequestParam;
 import framework.Annotation.GetMapping;
 import framework.Annotation.PostMapping;
+import framework.Annotation.RestApi;
 import framework.util.ModelView;
 import test.model.Employe;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
 @Controller
 public class UrlController {
@@ -136,5 +139,79 @@ public ModelView versJsp() {
         result.append("<p><a href='../employe/nouveau'>Ajouter un autre employé</a></p>");
         
         return result.toString();
+    }
+
+    // SPRINT 9: API REST - Retourne un objet en JSON
+    @GetMapping("/api/employe/{id}")
+    @RestApi
+    public Employe getEmployeApi(String id) {
+        System.out.println("\n=== SPRINT 9 : API GET /api/employe/" + id + " ===");
+        
+        // Créer un employé fictif
+        Employe emp = new Employe();
+        emp.setId(Integer.parseInt(id));
+        emp.setNom("RAKOTO Jean");
+        emp.setEmail("rakoto@example.mg");
+        emp.setAge(28);
+        emp.setSalaire(2500000.0);
+        emp.setPoste("Développeur");
+        emp.setDateEmbauche(new java.util.Date());
+        
+        return emp;
+    }
+
+    // SPRINT 9: API REST - Retourne une liste en JSON
+    @GetMapping("/api/employes")
+    @RestApi
+    public List<Employe> getAllEmployesApi() {
+        System.out.println("\n=== SPRINT 9 : API GET /api/employes ===");
+        
+        List<Employe> employes = new ArrayList<>();
+        
+        // Créer quelques employés fictifs
+        Employe emp1 = new Employe();
+        emp1.setId(1);
+        emp1.setNom("RAKOTO Jean");
+        emp1.setEmail("rakoto@example.mg");
+        emp1.setAge(28);
+        emp1.setSalaire(2500000.0);
+        emp1.setPoste("Développeur");
+        
+        Employe emp2 = new Employe();
+        emp2.setId(2);
+        emp2.setNom("RABE Marie");
+        emp2.setEmail("rabe@example.mg");
+        emp2.setAge(32);
+        emp2.setSalaire(3000000.0);
+        emp2.setPoste("Chef de projet");
+        
+        Employe emp3 = new Employe();
+        emp3.setId(3);
+        emp3.setNom("RANDRIA Paul");
+        emp3.setEmail("randria@example.mg");
+        emp3.setAge(25);
+        emp3.setSalaire(2200000.0);
+        emp3.setPoste("Analyste");
+        
+        employes.add(emp1);
+        employes.add(emp2);
+        employes.add(emp3);
+        
+        return employes;
+    }
+
+    // SPRINT 9: API REST - Retourne ModelView en JSON (extrait data)
+    @GetMapping("/api/stats")
+    @RestApi
+    public ModelView getStatsApi() {
+        System.out.println("\n=== SPRINT 9 : API GET /api/stats ===");
+        
+        ModelView mv = new ModelView();
+        mv.addAttribute("totalEmployes", 15);
+        mv.addAttribute("totalSalaires", 37500000.0);
+        mv.addAttribute("moyenneSalaire", 2500000.0);
+        mv.addAttribute("departements", 3);
+        
+        return mv;
     }
 }
