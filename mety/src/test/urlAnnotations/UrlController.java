@@ -6,7 +6,12 @@ import framework.Annotation.RequestParam;
 import framework.Annotation.GetMapping;
 import framework.Annotation.PostMapping;
 import framework.Annotation.RestApi;
+import framework.Annotation.SessionParam;
 import framework.util.ModelView;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import test.model.Employe;
 import java.util.Map;
 import java.util.List;
@@ -291,6 +296,175 @@ public ModelView versJsp() {
         }
         
         result.append("<p><a href='../document/nouveau'>Uploader un autre fichier</a></p>");
+        
+        return result.toString();
+    }
+
+    // SPRINT 11 : Sessions - ajouter/récupérer/supprimer des attributs
+    @PostMapping("/session/set")
+    public String setSessionAttr(@RequestParam("key") String key, @RequestParam("value") String value, HttpSession session) {
+        System.out.println("=== POST /session/set : key=" + key + " value=" + value + " ===");
+        session.setAttribute(key, value);
+        return "Attribut '" + key + "' ajouté à la session → " + value;
+    }
+
+    @GetMapping("/session/get")
+    public String getSessionAttr(@RequestParam("key") String key, HttpSession session) {
+        System.out.println("=== GET /session/get : key=" + key + " ===");
+        Object v = session.getAttribute(key);
+        return v != null ? v.toString() : "null";
+    }
+
+    @PostMapping("/session/remove")
+    public String removeSessionAttr(@RequestParam("key") String key, HttpSession session) {
+        System.out.println("=== POST /session/remove : key=" + key + " ===");
+        session.removeAttribute(key);
+        return "Attribut '" + key + "' supprimé de la session";
+    }
+
+    @GetMapping("/session/show")
+    @RestApi
+    public Map<String, Object> showSession(HttpSession session) {
+        System.out.println("=== GET /session/show ===");
+        Map<String, Object> data = new java.util.HashMap<>();
+        java.util.Enumeration<String> names = session.getAttributeNames();
+        while (names.hasMoreElements()) {
+            String n = names.nextElement();
+            data.put(n, session.getAttribute(n));
+        }
+        return data;
+    }
+
+    // SPRINT 11 : Système de login avec @SessionParam
+    @GetMapping("/auth/login")
+    public ModelView formulaireLogin(@SessionParam("currentUser") String user) {
+        System.out.println("=== GET /auth/login ===");
+        System.out.println("Utilisateur connecté : " + user);
+        
+        // Si déjà connecté, afficher un message plutôt qu'une erreur
+        if (user != null) {
+            ModelView mv = new ModelView("login_form");
+            mv.addAttribute("titre", "Déjà connecté");
+            mv.addAttribute("message", "Vous êtes déjà connecté en tant que " + user);
+            mv.addAttribute("alreadyLoggedIn", true);
+            mv.addAttribute("currentUser", user);
+            return mv;
+        }
+        
+        ModelView mv = new ModelView("login_form");
+        mv.addAttribute("titre", "Connexion - SPRINT 11");
+        mv.addAttribute("message", "Veuillez vous connecter");
+        mv.addAttribute("alreadyLoggedIn", false);
+        return mv;
+    }
+
+    @PostMapping("/auth/login")
+    public String processLogin(@RequestParam("username") String username, 
+                              @RequestParam("password") String password,
+                              HttpSession session) {
+        System.out.println("=== POST /auth/login : " + username + " ===");
+        
+        // Vérification credentials (en dur pour la démo)
+        boolean validLogin = false;
+        if (("admin".equals(username) && "123".equals(password)) ||
+            ("user".equals(username) && "pass".equals(password)) ||
+            ("demo".equals(username) && "demo".equals(password))) {
+            validLogin = true;
+        }
+        
+        StringBuilder result = new StringBuilder();
+        result.append("<h1>SPRINT 11 : Authentification</h1>");
+        
+        if (validLogin) {
+            // Enregistrer l'utilisateur dans la session
+            session.setAttribute("currentUser", username);
+            System.out.println("Utilisateur connecté : " + username);
+            
+            result.append("<h2>\u2713 Connexion réussie !</h2>");
+            result.append("<div style='background: #d4edda; padding: 20px; border-left: 4px solid #28a745; margin: 20px 0; border-radius: 8px;'>");
+            result.append("<strong>Bienvenue " + username + " !</strong><br>");
+            result.append("Vous êtes maintenant connecté.<br>");
+            result.append("Votre session contient : <code>currentUser = " + username + "</code>");
+            result.append("</div>");
+            result.append("<p><a href='../dashboard' style='display: inline-block; padding: 12px 25px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; margin: 10px;'>\u2192 Accéder au tableau de bord</a></p>");
+            result.append("<p><a href='../auth/logout' style='display: inline-block; padding: 10px 20px; background: #dc3545; color: white; text-decoration: none; border-radius: 5px;'>Déconnexion</a></p>");
+        } else {
+            result.append("<h2>\u2717 Échec de la connexion</h2>");
+            result.append("<div style='background: #f8d7da; padding: 20px; border-left: 4px solid #dc3545; margin: 20px 0; border-radius: 8px;'>");
+            result.append("<strong>Identifiants incorrects !</strong><br>");
+            result.append("Utilisateur : " + username + "<br>");
+            result.append("<small>Essayez : admin/123, user/pass, ou demo/demo</small>");
+            result.append("</div>");
+            result.append("<p><a href='../auth/login' style='display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;'>\u2190 Réessayer</a></p>");
+        }
+        
+        result.append("<div style='background: #e7f3fe; padding: 15px; border-left: 4px solid #2196F3; margin-top: 30px; border-radius: 8px;'>");
+        result.append("<strong>💡 Démonstration @SessionParam</strong><br>");
+        result.append("1. POST /auth/login vérifie username/password<br>");
+        result.append("2. Si valid : <code>session.setAttribute(\"currentUser\", username)</code><br>");
+        result.append("3. Pages protégées utilisent <code>@SessionParam(\"currentUser\")</code><br>");
+        result.append("4. Si param null = pas connecté, sinon = utilisateur connecté");
+        result.append("</div>");
+        
+        return result.toString();
+    }
+    
+    @GetMapping("/dashboard")
+    public String dashboard(@SessionParam("currentUser") String user) {
+        System.out.println("=== GET /dashboard ===");
+        System.out.println("Utilisateur depuis session : " + user);
+        
+        StringBuilder result = new StringBuilder();
+        result.append("<h1>SPRINT 11 : Tableau de Bord</h1>");
+        
+        if (user != null) {
+            result.append("<h2>\u2713 Accès autorisé</h2>");
+            result.append("<div style='background: #d1ecf1; padding: 20px; border-left: 4px solid #bee5eb; margin: 20px 0; border-radius: 8px;'>");
+            result.append("<strong>Bienvenue " + user + " !</strong><br>");
+            result.append("Voici votre tableau de bord personnel.<br>");
+            result.append("Session active : <code>@SessionParam(\"currentUser\") = \"" + user + "\"</code>");
+            result.append("</div>");
+            result.append("<h3>Actions disponibles :</h3>");
+            result.append("<ul style='line-height: 2;'>");
+            result.append("<li><a href='session/show'>\u2192 Voir tous les attributs de session (JSON)</a></li>");
+            result.append("<li><a href='api/employes'>\u2192 API Liste des employés (JSON)</a></li>");
+            result.append("<li><a href='employe/nouveau'>\u2192 Ajouter un employé</a></li>");
+            result.append("</ul>");
+            result.append("<p><a href='auth/logout' style='display: inline-block; padding: 10px 20px; background: #dc3545; color: white; text-decoration: none; border-radius: 5px;'>\u2717 Déconnexion</a></p>");
+        } else {
+            result.append("<h2>\u2717 Accès refusé</h2>");
+            result.append("<div style='background: #f8d7da; padding: 20px; border-left: 4px solid #f5c6cb; margin: 20px 0; border-radius: 8px;'>");
+            result.append("<strong>Vous devez être connecté pour accéder à cette page !</strong><br>");
+            result.append("Session : <code>@SessionParam(\"currentUser\") = null</code><br>");
+            result.append("<small>Aucun utilisateur trouvé dans la session HTTP</small>");
+            result.append("</div>");
+            result.append("<p><a href='auth/login' style='display: inline-block; padding: 12px 25px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;'>\u2192 Se connecter</a></p>");
+        }
+        
+        return result.toString();
+    }
+    
+    @PostMapping("/auth/logout")
+    public String logout(HttpSession session) {
+        System.out.println("=== POST /auth/logout ===");
+        
+        String user = (String) session.getAttribute("currentUser");
+        session.invalidate(); // Détruire toute la session
+        
+        System.out.println("Session détruite pour : " + user);
+        
+        StringBuilder result = new StringBuilder();
+        result.append("<h1>SPRINT 11 : Déconnexion</h1>");
+        result.append("<h2>\u2713 Déconnexion réussie</h2>");
+        result.append("<div style='background: #d4edda; padding: 20px; border-left: 4px solid #28a745; margin: 20px 0; border-radius: 8px;'>");
+        if (user != null) {
+            result.append("<strong>Au revoir " + user + " !</strong><br>");
+        }
+        result.append("Votre session a été détruite.<br>");
+        result.append("<code>session.invalidate()</code> appelé avec succès.");
+        result.append("</div>");
+        result.append("<p><a href='../auth/login' style='display: inline-block; padding: 12px 25px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;'>\u2192 Se reconnecter</a></p>");
+        result.append("<p><a href='../dashboard' style='display: inline-block; padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 5px;'>\u2192 Tester l'accès dashboard (doit être refusé)</a></p>");
         
         return result.toString();
     }
